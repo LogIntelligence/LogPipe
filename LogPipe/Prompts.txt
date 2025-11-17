@@ -1,0 +1,58 @@
+The prompts for Mining discrete  anomalous event patterns
+prompts = [
+                    {
+                        "role": "user",
+                        "content": (
+           "As a senior system log analyst, you need to understand how systems respond to critical errors. Please analyze the following sequence of log entries  and identify the most critical error event, considering both the initial error and the system's response to it.\n"
+           "Analysis Requirements:\n"
+           "1. Contextual Analysis: Consider the temporal relationships and causal associations between logs.\n"
+           "2. Priority Assessment: Focus on the initial critical error and the system's recovery actions.\n"
+           "- System crashes (such as kernel panic, segmentation fault)\n"
+           "- Data corruption (such as disk failure, corrupted data)\n"
+           "- CPU errors (such as frequency changes, clock ticks lost)\n"
+           "- Resource exhaustion (such as OOM, disk full)\n"
+           "- Service interruptions (such as  connection lost)\n"
+           "3. Semantic Understanding: Understand the significance of the system's response to the error.\n"
+           "4. False Positive Exclusion: Distinguish between actual errors and system recovery actions.\n"
+           "5. Impact Assessment: Consider the potential impact of the error and the system's response on system stability.\n"        
+           "I'll give you an example: {E1:content1 , E2:content2 , E3:content3 }. If you think content3 is a severe log, you should return the key corresponding to content3 (in this case, E3).\n"
+            f"{relevant_contents_dict} is a dictionary containing log template IDs and log contents.\n"
+            "From the dictionary I provide, you need to find and return the log template of the most significant error log statement, without explaining why you chose it.\n"
+            "If you genuinely believe that there are no anomalies in the logs provided, and they merely record normal system states, you should return 0.\n"
+            "Please pay close attention: you are only allowed to return 0 or the key from the dictionary (in the format EXX, such as E1, E2, ...), and you must return the correct key without any mismatches between keys and values."
+       )}]
+-------------------
+The prompts for log anomaly detection
+prompts = [
+            {'role': 'user', 
+            'content': "You are a specialist in log anomaly detection. Next, I will provide you with the original log sequence and some other information that can helped you judge log sequence's status."
+            f"This is the Log sequence you need to judge and explain,{raw_content}\n"
+            f"This is a other information to help you to judge.{extra_information}\n"
+            "Please analyze this log and use the analyze_log_anomaly function to return the status and explanation in a structured format."
+            }]
+---------------------------------------------------------------------------------------------------
+Function call for log anomaly detection
+    tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "analyze_log_anomaly",
+            "description": "Analyzes a log sequence to determine if it's normal or abnormal and provides a brief explanation.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "enum": ["normal", "abnormal"],
+                        "description": "The status of the log sequence, must be either 'normal' (normal operation) or 'abnormal' (error condition)."
+                    },
+                    "explanation": {
+                        "type": "string",
+                        "description": "Incorporate log details into a concise explanation (max 100 tokens)."
+                    }
+                },
+                "required": ["status", "explanation"]
+            }
+        }
+    }
+]
